@@ -176,6 +176,39 @@ async def import_playlist(body: PlaylistImportBody, user_id: str = Depends(get_c
     return _resource_out(doc)
 
 
+class VideoTitleBody(BaseModel):
+    title: str
+
+
+@router.patch("/{resource_id}/videos/{video_id}/title", response_model=ResourceOut)
+async def rename_video(
+    resource_id: str, video_id: str, body: VideoTitleBody, user_id: str = Depends(get_current_user_id)
+):
+    if not body.title.strip():
+        raise HTTPException(status_code=400, detail="Title cannot be empty")
+    db = get_db()
+    doc = await db[RESOURCES].find_one(
+        {"_id": ObjectId(resource_id), "user_id": ObjectId(user_id)}
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="Resource not found")
+    videos = doc.get("videos", [])
+    found = False
+    for v in videos:
+        if v["video_id"] == video_id:
+            v["title"] = body.title.strip()
+            found = True
+            break
+    if not found:
+        raise HTTPException(status_code=404, detail="Video not found")
+    updated = await db[RESOURCES].find_one_and_update(
+        {"_id": ObjectId(resource_id), "user_id": ObjectId(user_id)},
+        {"$set": {"videos": videos, "updated_at": datetime.now(timezone.utc)}},
+        return_document=True,
+    )
+    return _resource_out(updated)
+
+
 class VideoToggleResponse(ResourceOut):
     pass
 

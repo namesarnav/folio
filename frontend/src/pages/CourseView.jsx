@@ -6,7 +6,7 @@ import Button from '../components/ui/Button'
 import ProgressBar from '../components/ui/ProgressBar'
 import { LabelChip } from '../components/ui/Badge'
 import { getResource } from '../api/resources'
-import { toggleVideoComplete } from '../api/playlists'
+import { toggleVideoComplete, renameVideo } from '../api/playlists'
 import { getNotes, createNote, deleteNote } from '../api/notes'
 import { getLabels } from '../api/labels'
 
@@ -70,6 +70,8 @@ export default function CourseView() {
   const [allLabels, setAllLabels] = useState([])
   const [noteText, setNoteText] = useState('')
   const [playerSeconds, setPlayerSeconds] = useState(0)
+  const [editingVideoId, setEditingVideoId] = useState(null)
+  const [editingTitle, setEditingTitle] = useState('')
   const videoRefs = useRef({})
   const playerRef = useRef(null)
 
@@ -106,10 +108,15 @@ export default function CourseView() {
 
   const handleContinue = () => {
     if (!resource?.videos) return
-    const next = resource.videos.find(v => !v.completed)
-    if (next) {
+    const vids = resource.videos
+    const currentIdx = vids.findIndex(v => v.video_id === activeVideoId)
+    const next = vids.slice(currentIdx + 1).find(v => !v.completed)
+      || vids.find(v => !v.completed)
+    if (next && next.video_id !== activeVideoId) {
       setActiveVideoId(next.video_id)
-      videoRefs.current[next.video_id]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setTimeout(() => {
+        videoRefs.current[next.video_id]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 0)
     }
   }
 
@@ -125,6 +132,16 @@ export default function CourseView() {
       setNoteText('')
       loadNotes()
     } catch {}
+  }
+
+  const handleRenameVideo = async (videoId) => {
+    const trimmed = editingTitle.trim()
+    if (!trimmed) { setEditingVideoId(null); return }
+    try {
+      const { data } = await renameVideo(id, videoId, trimmed)
+      setResource(data)
+    } catch {}
+    setEditingVideoId(null)
   }
 
   const handleDeleteNote = async (noteId) => {
@@ -245,18 +262,51 @@ export default function CourseView() {
                             checked={video.completed}
                             onChange={() => handleToggle(video.video_id)}
                           />
-                          <span style={{
-                            flex: 1,
-                            fontSize: 12.5,
-                            fontWeight: isActive ? 500 : 400,
-                            color: video.completed ? 'var(--text-tertiary)' : 'var(--text-primary)',
-                            textDecoration: video.completed ? 'line-through' : 'none',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}>
-                            {cleanTitle(video.title, resource.title)}
-                          </span>
+                          {editingVideoId === video.video_id ? (
+                            <input
+                              autoFocus
+                              value={editingTitle}
+                              onChange={e => setEditingTitle(e.target.value)}
+                              onBlur={() => handleRenameVideo(video.video_id)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') handleRenameVideo(video.video_id)
+                                if (e.key === 'Escape') setEditingVideoId(null)
+                              }}
+                              onClick={e => e.stopPropagation()}
+                              style={{
+                                flex: 1,
+                                fontSize: 12.5,
+                                fontWeight: 500,
+                                color: 'var(--text-primary)',
+                                background: 'var(--bg-secondary)',
+                                border: '0.5px solid var(--border-strong)',
+                                borderRadius: 4,
+                                padding: '2px 6px',
+                                outline: 'none',
+                                minWidth: 0,
+                              }}
+                            />
+                          ) : (
+                            <span
+                              onDoubleClick={e => {
+                                e.stopPropagation()
+                                setEditingVideoId(video.video_id)
+                                setEditingTitle(video.title)
+                              }}
+                              title="Double-click to rename"
+                              style={{
+                                flex: 1,
+                                fontSize: 12.5,
+                                fontWeight: isActive ? 500 : 400,
+                                color: video.completed ? 'var(--text-tertiary)' : 'var(--text-primary)',
+                                textDecoration: video.completed ? 'line-through' : 'none',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}>
+                              {cleanTitle(video.title, resource.title)}
+                            </span>
+                          )}
                           <span style={{ fontSize: 11, color: 'var(--text-tertiary)', flexShrink: 0 }}>
                             {formatDuration(video.duration_seconds)}
                           </span>

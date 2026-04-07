@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getFolders } from '../../api/folders'
-import { getLabels } from '../../api/labels'
+import { getLabels, updateLabel, deleteLabel } from '../../api/labels'
 import { logout } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 
@@ -65,6 +65,9 @@ const icons = {
 export default function Sidebar() {
   const [folders, setFolders] = useState([])
   const [labels, setLabels] = useState([])
+  const [editingLabelId, setEditingLabelId] = useState(null)
+  const [editingLabelName, setEditingLabelName] = useState('')
+  const [hoveredLabelId, setHoveredLabelId] = useState(null)
   const navigate = useNavigate()
   const clearAuth = useAuthStore(s => s.clearAuth)
 
@@ -72,6 +75,23 @@ export default function Sidebar() {
     getFolders().then(r => setFolders(r.data)).catch(() => {})
     getLabels().then(r => setLabels(r.data)).catch(() => {})
   }, [])
+
+  const handleRenameLabel = async (label) => {
+    const trimmed = editingLabelName.trim()
+    setEditingLabelId(null)
+    if (!trimmed || trimmed === label.name) return
+    try {
+      const { data } = await updateLabel(label.id, { name: trimmed })
+      setLabels(prev => prev.map(l => l.id === label.id ? data : l))
+    } catch {}
+  }
+
+  const handleDeleteLabel = async (labelId) => {
+    try {
+      await deleteLabel(labelId)
+      setLabels(prev => prev.filter(l => l.id !== labelId))
+    } catch {}
+  }
 
   const handleSignOut = async () => {
     try { await logout() } catch {}
@@ -95,14 +115,16 @@ export default function Sidebar() {
         padding: '14px 12px 12px',
         borderBottom: '0.5px solid var(--border-default)',
       }}>
-        <span style={{
-          fontSize: 15,
-          fontWeight: 500,
-          letterSpacing: '-0.3px',
-          color: 'var(--text-primary)',
-        }}>
-          folio
-        </span>
+        <NavLink to="/" style={{ textDecoration: 'none' }}>
+          <span style={{
+            fontSize: 15,
+            fontWeight: 500,
+            letterSpacing: '-0.3px',
+            color: 'var(--text-primary)',
+          }}>
+            folio
+          </span>
+        </NavLink>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '10px 8px' }} className="flex flex-col gap-4">
@@ -165,32 +187,91 @@ export default function Sidebar() {
               <SectionLabel>Labels</SectionLabel>
             </div>
             {labels.map((label) => (
-              <NavLink
+              <div
                 key={label.id}
-                to={`/labels/${label.id}`}
-                style={({ isActive }) => ({
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '5px 8px',
-                  borderRadius: 6,
-                  fontSize: 13,
-                  textDecoration: 'none',
-                  backgroundColor: isActive ? 'var(--bg-card)' : 'transparent',
-                  border: isActive ? '0.5px solid var(--border-default)' : '0.5px solid transparent',
-                })}
+                onMouseEnter={() => setHoveredLabelId(label.id)}
+                onMouseLeave={() => setHoveredLabelId(null)}
+                style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
               >
-                <span
-                  style={{
-                    backgroundColor: label.color + '22',
-                    color: label.color,
-                    padding: '2px 8px',
-                    borderRadius: 20,
-                    fontSize: 10.5,
-                  }}
-                >
-                  {label.name}
-                </span>
-              </NavLink>
+                {editingLabelId === label.id ? (
+                  <input
+                    autoFocus
+                    value={editingLabelName}
+                    onChange={e => setEditingLabelName(e.target.value)}
+                    onBlur={() => handleRenameLabel(label)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') handleRenameLabel(label)
+                      if (e.key === 'Escape') setEditingLabelId(null)
+                    }}
+                    style={{
+                      flex: 1,
+                      fontSize: 12,
+                      color: label.color,
+                      background: label.color + '11',
+                      border: `0.5px solid ${label.color}55`,
+                      borderRadius: 20,
+                      padding: '2px 8px',
+                      outline: 'none',
+                      margin: '3px 8px',
+                    }}
+                  />
+                ) : (
+                  <NavLink
+                    to={`/labels/${label.id}`}
+                    style={({ isActive }) => ({
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '5px 8px',
+                      borderRadius: 6,
+                      fontSize: 13,
+                      textDecoration: 'none',
+                      backgroundColor: isActive ? 'var(--bg-card)' : 'transparent',
+                      border: isActive ? '0.5px solid var(--border-default)' : '0.5px solid transparent',
+                      overflow: 'hidden',
+                    })}
+                  >
+                    <span style={{
+                      backgroundColor: label.color + '22',
+                      color: label.color,
+                      padding: '2px 8px',
+                      borderRadius: 20,
+                      fontSize: 10.5,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {label.name}
+                    </span>
+                  </NavLink>
+                )}
+                {hoveredLabelId === label.id && editingLabelId !== label.id && (
+                  <div style={{ display: 'flex', gap: 2, paddingRight: 4, flexShrink: 0 }}>
+                    <button
+                      onClick={e => { e.preventDefault(); setEditingLabelId(label.id); setEditingLabelName(label.name) }}
+                      title="Rename"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '2px 3px', borderRadius: 4, lineHeight: 1 }}
+                      onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                        <path d="M8.5 1.5L10.5 3.5L4 10H2V8L8.5 1.5Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={e => { e.preventDefault(); handleDeleteLabel(label.id) }}
+                      title="Delete"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '2px 3px', borderRadius: 4, lineHeight: 1 }}
+                      onMouseEnter={e => e.currentTarget.style.color = 'var(--red-text, #e05c5c)'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 3h8M5 3V2h2v1M4 3v7h4V3H4Z" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}

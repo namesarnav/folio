@@ -14,7 +14,7 @@ export default function useAuth() {
       .then(({ data }) => setAccessToken(data.access_token))
       .catch(() => {})
       .finally(() => setChecking(false))
-  }, [])
+  }, [accessToken])
 
   return { accessToken, checking }
 }

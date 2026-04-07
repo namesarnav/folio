@@ -43,7 +43,7 @@ async def register(body: UserCreate, response: Response):
     access = create_access_token(user_id)
     refresh = create_refresh_token(user_id)
     response.set_cookie(
-        REFRESH_COOKIE, refresh, httponly=True, samesite="lax", secure=True, max_age=60 * 60 * 24 * 30
+        REFRESH_COOKIE, refresh, httponly=True, samesite="lax", secure=False, max_age=60 * 60 * 24 * 30
     )
     return TokenPair(access_token=access)
 
@@ -58,7 +58,7 @@ async def login(body: UserLogin, response: Response):
     access = create_access_token(user_id)
     refresh = create_refresh_token(user_id)
     response.set_cookie(
-        REFRESH_COOKIE, refresh, httponly=True, samesite="lax", secure=True, max_age=60 * 60 * 24 * 30
+        REFRESH_COOKIE, refresh, httponly=True, samesite="lax", secure=False, max_age=60 * 60 * 24 * 30
     )
     return TokenPair(access_token=access)
 
@@ -77,12 +77,12 @@ async def refresh(response: Response, refresh_token: str = Cookie(None)):
     access = create_access_token(user_id)
     new_refresh = create_refresh_token(user_id)
     response.set_cookie(
-        REFRESH_COOKIE, new_refresh, httponly=True, samesite="lax", secure=True, max_age=60 * 60 * 24 * 30
+        REFRESH_COOKIE, new_refresh, httponly=True, samesite="lax", secure=False, max_age=60 * 60 * 24 * 30
     )
     return TokenPair(access_token=access)
 
 
 @router.post("/logout")
 async def logout(response: Response):
-    response.delete_cookie(REFRESH_COOKIE)
+    response.delete_cookie(REFRESH_COOKIE, httponly=True, samesite="lax", secure=False)
     return {"detail": "Logged out"}

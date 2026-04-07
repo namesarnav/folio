@@ -7,7 +7,7 @@ _client: AsyncIOMotorClient | None = None
 
 async def connect_db():
     global _client
-    _client = AsyncIOMotorClient(settings.MONGO_URI, tls=True, tlsAllowInvalidCertificates=False)
+    _client = AsyncIOMotorClient(settings.MONGO_URI)
 
 
 async def close_db():
