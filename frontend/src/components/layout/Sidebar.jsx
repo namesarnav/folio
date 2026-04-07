@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getFolders } from '../../api/folders'
-import { getLabels, updateLabel, deleteLabel } from '../../api/labels'
+import { getLabels, createLabel, updateLabel, deleteLabel } from '../../api/labels'
 import { logout } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 
@@ -68,6 +68,8 @@ export default function Sidebar() {
   const [editingLabelId, setEditingLabelId] = useState(null)
   const [editingLabelName, setEditingLabelName] = useState('')
   const [hoveredLabelId, setHoveredLabelId] = useState(null)
+  const [addingLabel, setAddingLabel] = useState(false)
+  const [newLabelName, setNewLabelName] = useState('')
   const navigate = useNavigate()
   const clearAuth = useAuthStore(s => s.clearAuth)
 
@@ -75,6 +77,20 @@ export default function Sidebar() {
     getFolders().then(r => setFolders(r.data)).catch(() => {})
     getLabels().then(r => setLabels(r.data)).catch(() => {})
   }, [])
+
+  const LABEL_COLORS = ['#6b7cf6', '#22c55e', '#f59e0b', '#ec4899', '#14b8a6', '#f97316', '#8b5cf6']
+
+  const handleAddLabel = async () => {
+    const trimmed = newLabelName.trim()
+    setAddingLabel(false)
+    setNewLabelName('')
+    if (!trimmed) return
+    const color = LABEL_COLORS[labels.length % LABEL_COLORS.length]
+    try {
+      const { data } = await createLabel({ name: trimmed, color })
+      setLabels(prev => [...prev, data])
+    } catch {}
+  }
 
   const handleRenameLabel = async (label) => {
     const trimmed = editingLabelName.trim()
@@ -181,11 +197,40 @@ export default function Sidebar() {
         )}
 
         {/* Labels */}
-        {labels.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <div style={{ padding: '2px 8px 6px' }}>
-              <SectionLabel>Labels</SectionLabel>
-            </div>
+        <div className="flex flex-col gap-1">
+          <div style={{ padding: '2px 8px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <SectionLabel>Labels</SectionLabel>
+            <button
+              onClick={() => { setAddingLabel(true); setNewLabelName('') }}
+              title="New label"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '0 2px', lineHeight: 1, fontSize: 16 }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}
+            >+</button>
+          </div>
+          {addingLabel && (
+            <input
+              autoFocus
+              value={newLabelName}
+              onChange={e => setNewLabelName(e.target.value)}
+              onBlur={handleAddLabel}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleAddLabel()
+                if (e.key === 'Escape') { setAddingLabel(false); setNewLabelName('') }
+              }}
+              placeholder="Label name..."
+              style={{
+                fontSize: 12,
+                color: 'var(--text-primary)',
+                background: 'var(--bg-secondary)',
+                border: '0.5px solid var(--border-strong)',
+                borderRadius: 6,
+                padding: '4px 8px',
+                outline: 'none',
+                margin: '0 8px 2px',
+              }}
+            />
+          )}
             {labels.map((label) => (
               <div
                 key={label.id}
@@ -274,8 +319,7 @@ export default function Sidebar() {
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
 
       {/* Sign out */}
       <div style={{ padding: '8px', borderTop: '0.5px solid var(--border-default)' }}>
