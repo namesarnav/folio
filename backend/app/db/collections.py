@@ -1,0 +1,5 @@
+USERS = "users"
+RESOURCES = "resources"
+FOLDERS = "folders"
+LABELS = "labels"
+NOTES = "notes"

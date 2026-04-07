@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light mode */
+  --bg-primary: #FAFAF8;
+  --bg-secondary: #F4F3EF;
+  --bg-tertiary: #EEECEA;
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #F4F3EF;
+
+  --text-primary: #1A1A18;
+  --text-secondary: #6B6B66;
+  --text-tertiary: #A8A8A2;
+
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.14);
+
+  /* Accent: Blue */
+  --blue-bg: #D6E4F7;
+  --blue-text: #2563A8;
+
+  /* Accent: Green */
+  --green-bg: #D4EDD8;
+  --green-text: #2D6E38;
+
+  /* Accent: Amber */
+  --amber-bg: #F5E6C8;
+  --amber-text: #8A5C0A;
+
+  /* Accent: Pink */
+  --pink-bg: #F5DDE8;
+  --pink-text: #8A2D54;
+
+  /* Accent: Purple */
+  --purple-bg: #E5E0F8;
+  --purple-text: #4A3DAA;
+
+  --progress-fill: #2563A8;
+  --progress-bg: #EEECEA;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #141412;
+  --bg-secondary: #1C1C19;
+  --bg-tertiary: #222220;
+  --bg-card: #1C1C19;
+  --bg-sidebar: #1C1C19;
+
+  --text-primary: #F0EFE8;
+  --text-secondary: #9A9A92;
+  --text-tertiary: #5A5A54;
+
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* Accent: Blue */
+  --blue-bg: #1A2E4A;
+  --blue-text: #7AAEEE;
+
+  /* Accent: Green */
+  --green-bg: #1A3020;
+  --green-text: #7ABF84;
+
+  /* Accent: Amber */
+  --amber-bg: #2E2010;
+  --amber-text: #D4A050;
+
+  /* Accent: Pink */
+  --pink-bg: #2E1820;
+  --pink-text: #D47AAA;
+
+  /* Accent: Purple */
+  --purple-bg: #1E1A38;
+  --purple-text: #9A8FE0;
+
+  --progress-fill: #7AAEEE;
+  --progress-bg: #222220;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Responsive card grid */
+@media (max-width: 800px) {
+  .resource-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 500px) {
+  .resource-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 2px;
+}

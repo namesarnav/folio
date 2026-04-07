@@ -1,0 +1,556 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --bg-primary: #FAFAF8;
+    --bg-secondary: #F4F3EF;
+    --bg-tertiary: #EEECEA;
+    --bg-card: #FFFFFF;
+    --text-primary: #1A1A18;
+    --text-secondary: #6B6B66;
+    --text-tertiary: #A8A8A2;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --accent-blue: #D6E4F7;
+    --accent-blue-text: #2563A8;
+    --accent-green: #D4EDD8;
+    --accent-green-text: #2D6E38;
+    --accent-amber: #F5E6C8;
+    --accent-amber-text: #8A5C0A;
+    --accent-pink: #F5DDE8;
+    --accent-pink-text: #8A2D54;
+    --accent-purple: #E5E0F8;
+    --accent-purple-text: #4A3DAA;
+    --progress-bg: #EEECEA;
+    --progress-fill: #2563A8;
+    --sidebar-bg: #F4F3EF;
+  }
+
+  [data-theme="dark"] {
+    --bg-primary: #141412;
+    --bg-secondary: #1C1C19;
+    --bg-tertiary: #222220;
+    --bg-card: #1C1C19;
+    --text-primary: #F0EFE8;
+    --text-secondary: #9A9A92;
+    --text-tertiary: #5A5A54;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --accent-blue: #1A2E4A;
+    --accent-blue-text: #7AAEEE;
+    --accent-green: #1A3020;
+    --accent-green-text: #7ABF84;
+    --accent-amber: #2E2010;
+    --accent-amber-text: #D4A050;
+    --accent-pink: #2E1820;
+    --accent-pink-text: #D47AAA;
+    --accent-purple: #1E1A38;
+    --accent-purple-text: #9A8FE0;
+    --progress-bg: #2A2A26;
+    --progress-fill: #7AAEEE;
+    --sidebar-bg: #1C1C19;
+  }
+
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .shell {
+    display: flex;
+    height: 580px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-primary);
+  }
+
+  .sidebar {
+    width: 200px;
+    background: var(--sidebar-bg);
+    border-right: 0.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    padding: 18px 16px 14px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .sidebar-section {
+    padding: 12px 10px 4px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    margin: 1px 6px;
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    transition: background 0.1s;
+  }
+
+  .sidebar-item:hover { background: var(--bg-tertiary); }
+  .sidebar-item.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    font-weight: 500;
+  }
+
+  .sidebar-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sidebar-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin: 1px 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .label-pill {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--bg-primary);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--bg-primary);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .topbar-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .btn:hover { background: var(--bg-secondary); }
+
+  .btn-primary {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    border-color: var(--text-primary);
+  }
+
+  .btn-primary:hover { opacity: 0.88; }
+
+  .toggle-btn {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  .content {
+    padding: 20px;
+  }
+
+  .section-header {
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+    margin-top: 4px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .resource-card {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .resource-card:hover { border-color: var(--border-strong); }
+
+  .card-thumb {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .card-body { padding: 10px 12px 12px; }
+
+  .card-type {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .card-title {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.35;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--progress-bg);
+    border-radius: 2px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--progress-fill);
+    border-radius: 2px;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-count {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+  }
+
+  .status-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .card-labels {
+    display: flex;
+    gap: 4px;
+    margin-top: 7px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+
+  .course-row {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .check-circle {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .check-circle.done {
+    background: var(--progress-fill);
+    border-color: var(--progress-fill);
+  }
+
+  .check-circle.done::after {
+    content: '';
+    width: 5px; height: 3px;
+    border-left: 1.5px solid white;
+    border-bottom: 1.5px solid white;
+    transform: rotate(-45deg) translateY(-1px);
+  }
+
+  .row-title {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-primary);
+  }
+
+  .row-title.done-text {
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+  }
+
+  .row-dur {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .divider {
+    height: 0.5px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+</style>
+
+<div id="app">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+    <span style="font-size: 11px; color: var(--text-tertiary); font-family: Helvetica, Arial, sans-serif;">Folio — design preview</span>
+    <button class="toggle-btn" onclick="toggleTheme()" id="theme-btn">dark mode</button>
+  </div>
+
+  <div class="shell">
+    <div class="sidebar">
+      <div class="sidebar-logo">folio</div>
+
+      <div style="padding: 8px 0; flex: 1; overflow-y: auto;">
+        <div class="sidebar-section">Library</div>
+        <div class="sidebar-item active">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.4"/></svg>
+          All
+        </div>
+        <div class="sidebar-item">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" opacity="0.7"/><polygon points="6.5,5.5 11.5,8 6.5,10.5" fill="currentColor" opacity="0.7"/></svg>
+          Videos
+        </div>
+        <div class="sidebar-item">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.2" opacity="0.7"/><line x1="5" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="5" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>
+          PDFs
+        </div>
+        <div class="sidebar-item">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.2" opacity="0.7"/><rect x="4" y="1" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.2" opacity="0.4"/></svg>
+          Books
+        </div>
+        <div class="sidebar-item">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" opacity="0.7"/><line x1="8" y1="4" x2="8" y2="8.5" stroke="currentColor" stroke-width="1.2" opacity="0.7"/><circle cx="8" cy="11" r="0.8" fill="currentColor" opacity="0.7"/></svg>
+          Papers
+        </div>
+
+        <div class="sidebar-section" style="margin-top: 8px;">Folders</div>
+        <div class="sidebar-item">
+          <div class="sidebar-dot" style="background: var(--accent-blue-text); opacity: 0.7;"></div>
+          Machine Learning
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-dot" style="background: var(--accent-green-text); opacity: 0.7;"></div>
+          Quant Finance
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-dot" style="background: var(--accent-purple-text); opacity: 0.7;"></div>
+          Systems
+        </div>
+
+        <div class="sidebar-section" style="margin-top: 8px;">Labels</div>
+        <div class="sidebar-label">
+          <span class="label-pill" style="background: var(--accent-pink); color: var(--accent-pink-text);">#priority</span>
+        </div>
+        <div class="sidebar-label">
+          <span class="label-pill" style="background: var(--accent-amber); color: var(--accent-amber-text);">#revisit</span>
+        </div>
+        <div class="sidebar-label">
+          <span class="label-pill" style="background: var(--accent-green); color: var(--accent-green-text);">#NLP</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="topbar">
+        <span class="topbar-title">Machine Learning</span>
+        <div class="topbar-right">
+          <button class="btn">sort</button>
+          <button class="btn-primary btn">+ add</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="section-header">In progress</div>
+        <div class="card-grid">
+
+          <div class="resource-card">
+            <div class="card-thumb" style="background: var(--accent-blue);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="var(--accent-blue-text)" stroke-width="1.2" opacity="0.6"/><polygon points="10,8 17,12 10,16" fill="var(--accent-blue-text)" opacity="0.8"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-type" style="color: var(--accent-blue-text);">YouTube</div>
+              <div class="card-title">Deep Learning Specialization</div>
+              <div class="progress-bar"><div class="progress-fill" style="width: 62%;"></div></div>
+              <div class="card-meta">
+                <span class="card-count">26 / 42 videos</span>
+                <span class="status-badge" style="background: var(--accent-blue); color: var(--accent-blue-text);">In progress</span>
+              </div>
+              <div class="card-labels">
+                <span class="chip" style="background: var(--accent-green); color: var(--accent-green-text);">#NLP</span>
+                <span class="chip" style="background: var(--accent-pink); color: var(--accent-pink-text);">#priority</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="resource-card">
+            <div class="card-thumb" style="background: var(--accent-amber);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="13" height="17" rx="2" stroke="var(--accent-amber-text)" stroke-width="1.2" opacity="0.6"/><rect x="7" y="3" width="13" height="17" rx="2" stroke="var(--accent-amber-text)" stroke-width="1.2" opacity="0.3"/><line x1="7" y1="9" x2="14" y2="9" stroke="var(--accent-amber-text)" stroke-width="1" opacity="0.5"/><line x1="7" y1="12" x2="12" y2="12" stroke="var(--accent-amber-text)" stroke-width="1" opacity="0.5"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-type" style="color: var(--accent-amber-text);">Book</div>
+              <div class="card-title">Heard on the Street</div>
+              <div class="progress-bar"><div class="progress-fill" style="width: 34%;"></div></div>
+              <div class="card-meta">
+                <span class="card-count">pg 112 / 330</span>
+                <span class="status-badge" style="background: var(--accent-amber); color: var(--accent-amber-text);">In progress</span>
+              </div>
+              <div class="card-labels">
+                <span class="chip" style="background: var(--accent-amber); color: var(--accent-amber-text);">#revisit</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="resource-card">
+            <div class="card-thumb" style="background: var(--accent-purple);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="15" height="18" rx="2" stroke="var(--accent-purple-text)" stroke-width="1.2" opacity="0.6"/><line x1="7" y1="8" x2="14" y2="8" stroke="var(--accent-purple-text)" stroke-width="1" opacity="0.5"/><line x1="7" y1="11" x2="14" y2="11" stroke="var(--accent-purple-text)" stroke-width="1" opacity="0.5"/><line x1="7" y1="14" x2="11" y2="14" stroke="var(--accent-purple-text)" stroke-width="1" opacity="0.5"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-type" style="color: var(--accent-purple-text);">Paper</div>
+              <div class="card-title">Attention Is All You Need</div>
+              <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+              <div class="card-meta">
+                <span class="card-count">Vaswani et al., 2017</span>
+                <span class="status-badge" style="background: var(--accent-green); color: var(--accent-green-text);">Completed</span>
+              </div>
+              <div class="card-labels">
+                <span class="chip" style="background: var(--accent-green); color: var(--accent-green-text);">#NLP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-header">Course view — deep learning specialization</div>
+
+        <div style="background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 12px; font-weight: 500; color: var(--text-primary);">Week 2 — Neural Network Basics</span>
+            <span style="font-size: 11px; color: var(--text-tertiary);">3 / 5 done</span>
+          </div>
+          <div class="progress-bar" style="margin-bottom: 12px;"><div class="progress-fill" style="width: 60%;"></div></div>
+
+          <div class="course-row">
+            <div class="check-circle done"></div>
+            <span class="row-title done-text">Logistic Regression as a Neural Network</span>
+            <span class="row-dur">12:04</span>
+          </div>
+          <div class="course-row">
+            <div class="check-circle done"></div>
+            <span class="row-title done-text">Computation Graphs</span>
+            <span class="row-dur">6:43</span>
+          </div>
+          <div class="course-row">
+            <div class="check-circle done"></div>
+            <span class="row-title done-text">Derivatives with Computation Graphs</span>
+            <span class="row-dur">8:51</span>
+          </div>
+          <div class="course-row" style="border-color: var(--border-strong);">
+            <div class="check-circle"></div>
+            <span class="row-title" style="font-weight: 500;">Gradient Descent on m Examples</span>
+            <span class="row-dur">4:29</span>
+          </div>
+          <div class="course-row">
+            <div class="check-circle"></div>
+            <span class="row-title">Vectorization</span>
+            <span class="row-dur">11:22</span>
+          </div>
+
+          <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-tertiary);">26 min remaining in section</span>
+            <button class="btn-primary btn">continue →</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let dark = false;
+  function toggleTheme() {
+    dark = !dark;
+    document.getElementById('app').setAttribute('data-theme', dark ? 'dark' : '');
+    document.getElementById('theme-btn').textContent = dark ? 'light mode' : 'dark mode';
+    document.body.style.background = dark ? '#141412' : '';
+  }
+  document.getElementById('app').setAttribute('data-theme', '');
+</script>
