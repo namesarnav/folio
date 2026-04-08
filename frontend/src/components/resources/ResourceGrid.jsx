@@ -1,6 +1,6 @@
 import ResourceCard from './ResourceCard'
 
-export default function ResourceGrid({ resources, labels = [], onEdit }) {
+export default function ResourceGrid({ resources, labels = [], onEdit, onDelete }) {
   if (!resources.length) return null
   return (
     <div style={{
@@ -11,7 +11,7 @@ export default function ResourceGrid({ resources, labels = [], onEdit }) {
       className="resource-grid"
     >
       {resources.map(r => (
-        <ResourceCard key={r.id} resource={r} labels={labels} onEdit={onEdit} />
+        <ResourceCard key={r.id} resource={r} labels={labels} onEdit={onEdit} onDelete={onDelete} />
       ))}
     </div>
   )

@@ -3,7 +3,7 @@ import PageWrapper from '../components/layout/PageWrapper'
 import Topbar from '../components/layout/Topbar'
 import ResourceGrid from '../components/resources/ResourceGrid'
 import Button from '../components/ui/Button'
-import { getResources } from '../api/resources'
+import { getResources, deleteResource } from '../api/resources'
 import { getLabels } from '../api/labels'
 import AddResourceModal from '../components/resources/AddResourceModal'
 import EditResourceModal from '../components/resources/EditResourceModal'
@@ -47,6 +47,14 @@ export default function Dashboard() {
     const patch = (list) => list.map(r => r.id === updated.id ? updated : r)
     setInProgress(patch)
     setRecent(patch)
+  }
+
+  const handleDelete = async (resource) => {
+    if (!confirm(`Delete "${resource.title}"?`)) return
+    await deleteResource(resource.id)
+    const remove = (list) => list.filter(r => r.id !== resource.id)
+    setInProgress(remove)
+    setRecent(remove)
   }
 
   const filteredInProgress = filterByLabel(inProgress)
@@ -120,7 +128,7 @@ export default function Dashboard() {
                 <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   In Progress
                 </div>
-                <ResourceGrid resources={filteredInProgress} labels={labels} onEdit={setEditResource} />
+                <ResourceGrid resources={filteredInProgress} labels={labels} onEdit={setEditResource} onDelete={handleDelete} />
               </section>
             )}
 
@@ -129,7 +137,7 @@ export default function Dashboard() {
                 <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Recently Added
                 </div>
-                <ResourceGrid resources={filteredRecent} labels={labels} onEdit={setEditResource} />
+                <ResourceGrid resources={filteredRecent} labels={labels} onEdit={setEditResource} onDelete={handleDelete} />
               </section>
             )}
 

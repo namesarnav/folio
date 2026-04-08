@@ -5,6 +5,7 @@ import Topbar from '../components/layout/Topbar'
 import ResourceGrid from '../components/resources/ResourceGrid'
 import Button from '../components/ui/Button'
 import { getFolderResources } from '../api/folders'
+import { deleteResource } from '../api/resources'
 import { getLabels } from '../api/labels'
 
 export default function FolderView() {
@@ -30,6 +31,12 @@ export default function FolderView() {
     load()
   }, [id])
 
+  const handleDelete = async (resource) => {
+    if (!confirm(`Delete "${resource.title}"?`)) return
+    await deleteResource(resource.id)
+    setResources(prev => prev.filter(r => r.id !== resource.id))
+  }
+
   return (
     <PageWrapper>
       <Topbar title={folderName} />
@@ -41,7 +48,7 @@ export default function FolderView() {
             No resources in this folder
           </div>
         ) : (
-          <ResourceGrid resources={resources} labels={labels} />
+          <ResourceGrid resources={resources} labels={labels} onDelete={handleDelete} />
         )}
       </div>
     </PageWrapper>

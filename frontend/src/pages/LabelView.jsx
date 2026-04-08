@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom'
 import PageWrapper from '../components/layout/PageWrapper'
 import Topbar from '../components/layout/Topbar'
 import ResourceGrid from '../components/resources/ResourceGrid'
-import { getLabelResources } from '../api/labels'
-import { getLabels } from '../api/labels'
+import { getLabelResources, getLabels } from '../api/labels'
+import { deleteResource } from '../api/resources'
 
 export default function LabelView() {
   const { id } = useParams()
@@ -31,6 +31,12 @@ export default function LabelView() {
     load()
   }, [id])
 
+  const handleDelete = async (resource) => {
+    if (!confirm(`Delete "${resource.title}"?`)) return
+    await deleteResource(resource.id)
+    setResources(prev => prev.filter(r => r.id !== resource.id))
+  }
+
   return (
     <PageWrapper>
       <Topbar title={labelName} />
@@ -42,7 +48,7 @@ export default function LabelView() {
             No resources with this label
           </div>
         ) : (
-          <ResourceGrid resources={resources} labels={labels} />
+          <ResourceGrid resources={resources} labels={labels} onDelete={handleDelete} />
         )}
       </div>
     </PageWrapper>

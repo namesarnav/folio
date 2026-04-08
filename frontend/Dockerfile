@@ -13,6 +13,6 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
-ENV BACKEND_URL=http://localhost:8000
+ENV BACKEND_URL=""
 
 EXPOSE 80

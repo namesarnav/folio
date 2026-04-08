@@ -72,7 +72,7 @@ function progressLabel(resource) {
   return `${Math.round(progress * 100)}%`
 }
 
-export default function ResourceCard({ resource, labels = [], onEdit }) {
+export default function ResourceCard({ resource, labels = [], onEdit, onDelete }) {
   const navigate = useNavigate()
   const [hovered, setHovered] = useState(false)
 
@@ -85,6 +85,11 @@ export default function ResourceCard({ resource, labels = [], onEdit }) {
   const handleEdit = (e) => {
     e.stopPropagation()
     onEdit?.(resource)
+  }
+
+  const handleDelete = (e) => {
+    e.stopPropagation()
+    onDelete?.(resource)
   }
 
   return (
@@ -104,32 +109,54 @@ export default function ResourceCard({ resource, labels = [], onEdit }) {
         position: 'relative',
       }}
     >
-      {/* Edit button */}
-      {hovered && onEdit && (
-        <button
-          onClick={handleEdit}
-          style={{
-            position: 'absolute',
-            top: 7,
-            right: 7,
-            zIndex: 2,
-            width: 26,
-            height: 26,
-            borderRadius: 6,
-            backgroundColor: 'rgba(0,0,0,0.55)',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-          }}
-          title="Edit"
-        >
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M9.5 1.5l2 2-7 7H2.5v-2l7-7z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-          </svg>
-        </button>
+      {/* Action buttons */}
+      {hovered && (onEdit || onDelete) && (
+        <div style={{ position: 'absolute', top: 7, right: 7, zIndex: 2, display: 'flex', gap: 4 }}>
+          {onEdit && (
+            <button
+              onClick={handleEdit}
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 6,
+                backgroundColor: 'rgba(0,0,0,0.55)',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+              }}
+              title="Edit"
+            >
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M9.5 1.5l2 2-7 7H2.5v-2l7-7z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 6,
+                backgroundColor: 'rgba(0,0,0,0.55)',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+              }}
+              title="Delete"
+            >
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M2 3.5h9M5 3.5V2h3v1.5M5.5 5.5v4M7.5 5.5v4M3 3.5l.5 7h6l.5-7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
+        </div>
       )}
 
       {/* Thumbnail */}

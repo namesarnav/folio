@@ -4,7 +4,7 @@ import PageWrapper from '../components/layout/PageWrapper'
 import Topbar from '../components/layout/Topbar'
 import ResourceGrid from '../components/resources/ResourceGrid'
 import Button from '../components/ui/Button'
-import { getResources } from '../api/resources'
+import { getResources, deleteResource } from '../api/resources'
 import { getLabels } from '../api/labels'
 import AddResourceModal from '../components/resources/AddResourceModal'
 
@@ -46,6 +46,12 @@ export default function LibraryView() {
 
   useEffect(() => { load() }, [type])
 
+  const handleDelete = async (resource) => {
+    if (!confirm(`Delete "${resource.title}"?`)) return
+    await deleteResource(resource.id)
+    setResources(prev => prev.filter(r => r.id !== resource.id))
+  }
+
   const title = TITLE_MAP[type] || 'Library'
 
   return (
@@ -64,7 +70,7 @@ export default function LibraryView() {
             No {title.toLowerCase()} yet
           </div>
         ) : (
-          <ResourceGrid resources={resources} labels={labels} />
+          <ResourceGrid resources={resources} labels={labels} onDelete={handleDelete} />
         )}
       </div>
       <AddResourceModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={load} />

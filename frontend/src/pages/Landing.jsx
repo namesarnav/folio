@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import useAuth from '../hooks/useAuth'
 
 /* ─── inline design tokens — works without CSS vars on this page ─── */
 const light = {
@@ -20,7 +21,7 @@ const light = {
 }
 
 /* ─── nav ─── */
-function Nav({ onLogin, onStart }) {
+function Nav({ onLogin, onStart, onDashboard, isLoggedIn, sessionChecked }) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20)
@@ -43,29 +44,42 @@ function Nav({ onLogin, onStart }) {
         folio
       </span>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <button onClick={onLogin} style={{
-          fontSize: 13, padding: '6px 14px', borderRadius: 6,
-          border: `0.5px solid ${light.borderStrong}`,
-          backgroundColor: light.bgCard, color: light.textPrimary,
-          cursor: 'pointer', fontFamily: 'inherit',
-        }}>
-          Log in
-        </button>
-        <button onClick={onStart} style={{
-          fontSize: 13, padding: '6px 14px', borderRadius: 6,
-          border: 'none',
-          backgroundColor: light.textPrimary, color: light.bgPrimary,
-          cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500,
-        }}>
-          Get started
-        </button>
+        {!sessionChecked ? null : isLoggedIn ? (
+          <button onClick={onDashboard} style={{
+            fontSize: 13, padding: '6px 14px', borderRadius: 6,
+            border: 'none',
+            backgroundColor: light.textPrimary, color: light.bgPrimary,
+            cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500,
+          }}>
+            Dashboard →
+          </button>
+        ) : (
+          <>
+            <button onClick={onLogin} style={{
+              fontSize: 13, padding: '6px 14px', borderRadius: 6,
+              border: `0.5px solid ${light.borderStrong}`,
+              backgroundColor: light.bgCard, color: light.textPrimary,
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+              Log in
+            </button>
+            <button onClick={onStart} style={{
+              fontSize: 13, padding: '6px 14px', borderRadius: 6,
+              border: 'none',
+              backgroundColor: light.textPrimary, color: light.bgPrimary,
+              cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500,
+            }}>
+              Get started
+            </button>
+          </>
+        )}
       </div>
     </nav>
   )
 }
 
 /* ─── hero ─── */
-function Hero({ onStart, onLogin }) {
+function Hero({ onStart, onLogin, onDashboard, isLoggedIn, sessionChecked }) {
   return (
     <section style={{
       padding: '140px 32px 80px',
@@ -99,25 +113,39 @@ function Hero({ onStart, onLogin }) {
       </p>
 
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-        <button onClick={onStart} style={{
-          fontSize: 14, padding: '10px 22px', borderRadius: 6,
-          border: 'none', backgroundColor: light.textPrimary, color: light.bgPrimary,
-          cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500,
-        }}>
-          Get started — it's free
-        </button>
-        <button onClick={onLogin} style={{
-          fontSize: 14, padding: '10px 22px', borderRadius: 6,
-          border: `0.5px solid ${light.borderStrong}`, backgroundColor: light.bgCard,
-          color: light.textSecondary, cursor: 'pointer', fontFamily: 'inherit',
-        }}>
-          Log in →
-        </button>
+        {!sessionChecked ? null : isLoggedIn ? (
+          <button onClick={onDashboard} style={{
+            fontSize: 14, padding: '10px 22px', borderRadius: 6,
+            border: 'none', backgroundColor: light.textPrimary, color: light.bgPrimary,
+            cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500,
+          }}>
+            Go to Dashboard →
+          </button>
+        ) : (
+          <>
+            <button onClick={onStart} style={{
+              fontSize: 14, padding: '10px 22px', borderRadius: 6,
+              border: 'none', backgroundColor: light.textPrimary, color: light.bgPrimary,
+              cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500,
+            }}>
+              Get started — it's free
+            </button>
+            <button onClick={onLogin} style={{
+              fontSize: 14, padding: '10px 22px', borderRadius: 6,
+              border: `0.5px solid ${light.borderStrong}`, backgroundColor: light.bgCard,
+              color: light.textSecondary, cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+              Log in →
+            </button>
+          </>
+        )}
       </div>
 
-      <p style={{ fontSize: 12, color: light.textTertiary, marginTop: 16 }}>
-        No credit card required
-      </p>
+      {!isLoggedIn && (
+        <p style={{ fontSize: 12, color: light.textTertiary, marginTop: 16 }}>
+          No credit card required
+        </p>
+      )}
     </section>
   )
 }
@@ -779,8 +807,13 @@ function Label({ children }) {
 /* ─── main export ─── */
 export default function Landing() {
   const navigate = useNavigate()
+  const { accessToken, checking } = useAuth()
+  const sessionChecked = !checking
+  const isLoggedIn = !!accessToken
+
   const onLogin = () => navigate('/login')
   const onStart = () => navigate('/login')
+  const onDashboard = () => navigate('/dashboard')
 
   return (
     <div style={{
@@ -798,8 +831,8 @@ export default function Landing() {
         }
       `}</style>
 
-      <Nav onLogin={onLogin} onStart={onStart} />
-      <Hero onStart={onStart} onLogin={onLogin} />
+      <Nav onLogin={onLogin} onStart={onStart} onDashboard={onDashboard} isLoggedIn={isLoggedIn} sessionChecked={sessionChecked} />
+      <Hero onStart={onStart} onLogin={onLogin} onDashboard={onDashboard} isLoggedIn={isLoggedIn} sessionChecked={sessionChecked} />
       <DemoMockup />
       <Problem />
       <Features />
