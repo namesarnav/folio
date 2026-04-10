@@ -110,6 +110,7 @@ export default function CourseView() {
     if (!resource?.videos) return
     const vids = resource.videos
     const currentIdx = vids.findIndex(v => v.video_id === activeVideoId)
+
     const next = vids.slice(currentIdx + 1).find(v => !v.completed)
       || vids.find(v => !v.completed)
     if (next && next.video_id !== activeVideoId) {
@@ -252,10 +253,10 @@ export default function CourseView() {
                             gap: 8,
                             padding: '10px 14px',
                             borderRadius: 8,
-                            backgroundColor: 'var(--bg-card)',
-                            border: isActive ? '0.5px solid var(--border-strong)' : '0.5px solid var(--border-default)',
+                            backgroundColor: isActive? '#292826ff' : 'var(--bg-card)',
+                            border: isActive ? '0.5px dashed var(--border-strong) ' : '0.5px solid var(--border-default)',
                             cursor: 'pointer',
-                            transition: 'border-color 0.1s',
+                            transition: 'border-color 0.15s',
                           }}
                         >
                           <Checkbox
