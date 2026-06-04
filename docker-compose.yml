@@ -14,7 +14,7 @@ services:
     depends_on:
       - mongo
     volumes:
-      - ./backend:/app
+      - ./server:/app
 
   client:
     build: ./client
@@ -24,7 +24,7 @@ services:
     depends_on:
       - server
     volumes:
-      - ./frontend:/app
+      - ./client:/app
       - /app/node_modules
 
 volumes:
